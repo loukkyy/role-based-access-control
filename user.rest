@@ -1,0 +1,42 @@
+@hostname = localhost
+@port = 3000
+@host = {{hostname}}:{{port}}
+@createdAt = {{$datetime iso8601}}
+@modifiedBy = {{$processEnv USERNAME}}
+@refreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNwb25nZS5ib2JAb2NlYW4uY29tIiwiaWF0IjoxNjE2NDM4NTMwLCJleHAiOjE2MTY1MjQ5MzB9.SHrv4GCkO73fEs7JoK4Hjk6Fz5npYFNNIj-ALDaa2PA"
+
+POST http://{{host}}/token
+content-type: application/json
+
+{
+    "refreshToken": {{refreshToken}}
+}
+
+###
+
+POST http://{{host}}/login
+content-type: application/json
+
+{
+    "email": "sponge.bob@ocean.com",
+    "password": "1"
+}
+
+###
+
+POST http://{{host}}/logout
+content-type: application/json
+
+{
+    "refreshToken": {{refreshToken}}
+}
+
+###
+
+POST http://{{host}}/register
+content-type: application/json
+
+{
+    "email": "john.doe@test.com",
+    "password": "pass"
+}
