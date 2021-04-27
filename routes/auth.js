@@ -31,7 +31,67 @@ router.post("/token", verifyRefreshToken, async (req, res) => {
   return res.json({ accessToken })
 })
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    Credential:
+ *      type: object
+ *      required:
+ *        - email
+ *        - password
+ *      properties:
+ *        email:
+ *          type: string
+ *          description: User's email
+ *        password:
+ *          type: string
+ *          description: User's password
+ *      example:
+ *        email: john.doe@test.com
+ *        password: myStrongPassword
+ *    JwtTokens:
+ *      type: object
+ *      properties:
+ *        accessToken:
+ *          type: string
+ *          description: JWT access token
+ *        refreshToken:
+ *          type: string
+ *          description: JWT refresh token
+ */
+
+/**
+ * @openapi
+ * tags:
+ *  name: Authentication
+ *  description: Authentication API
+ */
+
 // login
+/**
+ * @openapi
+ * /login:
+ *  post:
+ *    summary: Authentication user with username + password
+ *    description: Authenticate user with username + password and return the JWT access and refresh tokens
+ *    tags: [Authentication]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Credential'
+ *    responses:
+ *      200:
+ *        description: The user has authenticated successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/JwtTokens'
+ *      401:
+ *        description: Invalid credential
+ */
 router.post("/login", async (req, res) => {
   const { email, password } = req.body
 
