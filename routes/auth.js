@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const bcrypt = require("bcrypt")
-const { ROLE } = require("../data")
+const { ROLE, accounts } = require("../data")
 
 const {
   generateAccessToken,
@@ -10,26 +10,6 @@ const {
 } = require("../services/JwtService")
 
 let { refreshTokens } = require("../services/JwtService")
-
-// test data
-const users = [
-  {
-    id: "1615052252528",
-    email: "sponge.bob@ocean.com",
-    // password: 1
-    password: "$2b$10$N6TrTnihOy.luzvn5lU6oeDxbzg8uOSQTNmQw84Wz.8QDP8GHRsdW",
-    roles: [ROLE.BASIC],
-  },
-]
-
-// refresh token
-router.post("/token", verifyRefreshToken, async (req, res) => {
-  const accessToken = generateAccessToken({
-    email: req.user.email,
-    roles: req.user.roles,
-  })
-  return res.json({ accessToken })
-})
 
 /**
  * @openapi
@@ -59,6 +39,18 @@ router.post("/token", verifyRefreshToken, async (req, res) => {
  *        refreshToken:
  *          type: string
  *          description: JWT refresh token
+ *    AccessToken:
+ *      type: object
+ *      properties:
+ *        accessToken:
+ *          type: string
+ *          description: JWT access token
+ *    RefreshToken:
+ *      type: object
+ *      properties:
+ *        refreshToken:
+ *          type: string
+ *          description: JWT refresh token
  */
 
 /**
@@ -68,7 +60,6 @@ router.post("/token", verifyRefreshToken, async (req, res) => {
  *  description: Authentication API
  */
 
-// login
 /**
  * @openapi
  * /login:
@@ -96,7 +87,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body
 
   // check user exists
-  const user = users.find((user) => user.email === email)
+  const user = accounts.find((user) => user.email === email)
   if (user == null) {
     return res.status(401).json({ error: "Invalid login. Please try again." })
   }
@@ -121,7 +112,60 @@ router.post("/login", async (req, res) => {
   }
 })
 
-// logout
+/**
+ * @openapi
+ * /token:
+ *  post:
+ *    summary: Refresh access token
+ *    description: Returns a new access token given a refresh token
+ *    tags: [Authentication]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/RefreshToken'
+ *    responses:
+ *      200:
+ *        description: The user has authenticated successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/AccessToken'
+ *      401:
+ *        description: Invalid credential
+ */
+router.post("/token", verifyRefreshToken, async (req, res) => {
+  // check user exists
+  const user = accounts.find((user) => user.email === req.user.email)
+  if (user == null) {
+    return res.status(401).json({ error: "Invalid login. Please try again." })
+  }
+
+  const accessToken = generateAccessToken({
+    email: req.user.email,
+    roles: user.roles,
+  })
+  return res.json({ accessToken })
+})
+
+/**
+ * @openapi
+ * /logout:
+ *  post:
+ *    summary: Logout user
+ *    description: Logout user using refresh token
+ *    tags: [Authentication]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/RefreshToken'
+ *    responses:
+ *      204:
+ *        description: The user has logged out successfully
+ */
 router.post("/logout", async (req, res) => {
   const { refreshToken } = req.body
   refreshTokens = refreshTokens.filter((token) => token != refreshToken)
@@ -129,7 +173,31 @@ router.post("/logout", async (req, res) => {
   res.sendStatus(204)
 })
 
-// register
+/**
+ * @openapi
+ * /register:
+ *  post:
+ *    summary: Register new user
+ *    description: Register new user with username + password
+ *    tags: [Authentication]
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Credential'
+ *    responses:
+ *      201:
+ *        description: The user has registered successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/JwtTokens'
+ *      400:
+ *        description: Email or password not provided. Cannot register user.
+ *      409:
+ *        description: An account with this email already exists.
+ */
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body
@@ -142,10 +210,10 @@ router.post("/register", async (req, res) => {
     }
 
     // check if email already exists
-    const user = users.find((user) => user.email === email)
+    const user = accounts.find((user) => user.email === email)
     if (user) {
       res
-        .status(400)
+        .status(409)
         .json({ error: "An account with this email already exists." })
       return
     }
@@ -154,7 +222,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     // save user
-    users.push({
+    accounts.push({
       id: Date.now().toString(),
       email: req.body.email,
       password: hashedPassword,

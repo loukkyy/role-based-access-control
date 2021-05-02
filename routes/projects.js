@@ -10,20 +10,134 @@ const {
   scopedProjects,
 } = require("../permissions/project")
 
+/**
+ * @openapi
+ * components:
+ *  securitySchemes:
+ *    bearerAuth:
+ *      type: http
+ *      scheme: bearer
+ *      bearerFormat: JWT
+ *  responses:
+ *    UnauthorizedError:
+ *      description: Access token is missing or invalid
+ *  schemas:
+ *    Project:
+ *      type: object
+ *      required:
+ *        - id
+ *        - name
+ *        - userEmail
+ *      properties:
+ *        id:
+ *          type: number
+ *          description: Project's id
+ *        name:
+ *          type: string
+ *          description: Project's name
+ *        userEmail:
+ *          type: string
+ *          description: User's email
+ *      example:
+ *        id: 1
+ *        name: John's project
+ *        userEmail: john.doe@test.com
+ */
+
+/**
+ * @openapi
+ * tags:
+ *  name: Projects
+ *  description: Projects API
+ */
+
+/**
+ * @openapi
+ * /projects:
+ *  get:
+ *    summary: List user's projects
+ *    description: Returns a list of projects scoped to the user
+ *    tags: [Projects]
+ *    responses:
+ *      200:
+ *        description: A list of projects
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Project'
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *    security:
+ *      - bearerAuth: []
+ */
 router.get("/", verifyAccessToken, (req, res) => {
   res.json(scopedProjects(req.user, projects))
 })
 
+/**
+ * @openapi
+ * /projects/{id}:
+ *  get:
+ *    summary: Get project by id
+ *    description: Returns a project with the specified ID
+ *    tags: [Projects]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        description: Project ID
+ *        required: true
+ *        schema:
+ *          type: integer
+ *          format: int64
+ *    responses:
+ *      200:
+ *        description: Project
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Project'
+ *      404:
+ *        description: A project with the specified ID was not found.
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *    security:
+ *      - bearerAuth: []
+ */
 router.get(
   "/:id",
   verifyAccessToken,
   setProject,
   authGetProject,
   (req, res) => {
-    res.json(project)
+    res.json(req.project)
   }
 )
 
+/**
+ * @openapi
+ * /projects/{id}:
+ *  delete:
+ *    summary: Delete project by id
+ *    description: Delete a project with the specified ID
+ *    tags: [Projects]
+ *    parameters:
+ *      - name: id
+ *        in: path
+ *        description: Project ID
+ *        required: true
+ *        schema:
+ *          type: integer
+ *          format: int64
+ *    responses:
+ *      204:
+ *        description: Project deleted
+ *      404:
+ *        description: A project with the specified ID was not found.
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *    security:
+ *      - bearerAuth: []
+ */
 router.delete(
   "/:id",
   verifyAccessToken,
