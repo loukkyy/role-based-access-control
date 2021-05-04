@@ -9,7 +9,7 @@ const {
   verifyRefreshToken,
 } = require("../services/JwtService")
 
-let { refreshTokens } = require("../services/JwtService")
+const { refreshTokens } = require("../services/JwtService")
 
 /**
  * @openapi
@@ -168,7 +168,9 @@ router.post("/token", verifyRefreshToken, async (req, res) => {
  */
 router.post("/logout", async (req, res) => {
   const { refreshToken } = req.body
-  refreshTokens = refreshTokens.filter((token) => token != refreshToken)
+  if(refreshTokens.indexOf(refreshToken) != -1) {
+    refreshTokens.splice(refreshTokens.indexOf(refreshToken), 1)
+  }
   console.log(`Refresh token deleted: ${refreshToken}`)
   res.sendStatus(204)
 })

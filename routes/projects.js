@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
 let { projects } = require("../data")
-const { authUser } = require("../basicAuth")
+const { verifyUserExists } = require("../basicAuth")
 const { verifyAccessToken } = require("../services/JwtService")
 
 const {
@@ -70,7 +70,7 @@ const {
  *    security:
  *      - bearerAuth: []
  */
-router.get("/", verifyAccessToken, (req, res) => {
+router.get("/", verifyAccessToken, verifyUserExists, (req, res) => {
   res.json(scopedProjects(req.user, projects))
 })
 
@@ -106,6 +106,7 @@ router.get("/", verifyAccessToken, (req, res) => {
 router.get(
   "/:id",
   verifyAccessToken,
+  verifyUserExists,
   setProject,
   authGetProject,
   (req, res) => {
@@ -141,6 +142,7 @@ router.get(
 router.delete(
   "/:id",
   verifyAccessToken,
+  verifyUserExists,
   setProject,
   authDeleteProject,
   (req, res) => {

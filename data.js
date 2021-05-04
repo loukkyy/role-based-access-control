@@ -1,12 +1,12 @@
-const ROLE = {
+const ROLES = {
   ADMIN: "admin",
   BASIC: "basic",
 }
 
 const users = [
-  { id: 1, email: "sponge.bob@ocean.com", name: "Bob", role: ROLE.ADMIN },
-  { id: 2, email: "james.bond@007.com", name: "James", role: ROLE.BASIC },
-  { id: 3, email: "lara.croft@tombraider.com", name: "John", role: ROLE.BASIC },
+  { id: 1, email: "sponge.bob@ocean.com", name: "Bob", role: ROLES.ADMIN },
+  { id: 2, email: "james.bond@007.com", name: "James", role: ROLES.BASIC },
+  { id: 3, email: "lara.croft@tombraider.com", name: "John", role: ROLES.BASIC },
 ]
 
 let projects = [
@@ -21,26 +21,26 @@ const accounts = [
     email: "sponge.bob@ocean.com",
     // password: 1
     password: "$2b$10$N6TrTnihOy.luzvn5lU6oeDxbzg8uOSQTNmQw84Wz.8QDP8GHRsdW",
-    roles: [ROLE.BASIC],
+    roles: [ROLES.BASIC],
   },
   {
     id: "1619990255072",
     email: "james.bond@007.com",
     // password: 1
     password: "$2b$10$N6TrTnihOy.luzvn5lU6oeDxbzg8uOSQTNmQw84Wz.8QDP8GHRsdW",
-    roles: [ROLE.BASIC],
+    roles: [ROLES.BASIC],
   },
   {
     id: "1619990298626",
     email: "lara.croft@tombraider.com",
     // password: 1
     password: "$2b$10$N6TrTnihOy.luzvn5lU6oeDxbzg8uOSQTNmQw84Wz.8QDP8GHRsdW",
-    roles: [ROLE.ADMIN],
+    roles: [ROLES.ADMIN],
   },
 ]
 
 module.exports = {
-  ROLE,
+  ROLES,
   users,
   projects,
   accounts,

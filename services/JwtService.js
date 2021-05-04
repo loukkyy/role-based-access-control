@@ -8,6 +8,7 @@ function generateAccessToken(user) {
     expiresIn: process.env.ACCESS_TOKEN_VALIDITY,
   })
 }
+
 function generateRefreshToken(user) {
   return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: process.env.REFRESH_TOKEN_VALIDITY,
@@ -25,6 +26,7 @@ function verifyAccessToken(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.status(401).json({ error: "Access token has expired." })
     req.user = user
+    console.log("Verify token:", user)
     next()
   })
 }
